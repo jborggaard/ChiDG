@@ -1351,7 +1351,7 @@ contains
         real(rk)        :: tol
         integer(ik)     :: inode_diff, idir, inode
         
-        tol = 1.e-14_rk
+        tol = 1.e-13_rk
        
        
         !
@@ -1630,7 +1630,7 @@ contains
         real(rk)        :: tol
         integer(ik)     :: inode_diff, idir, inode
         
-        tol = 1.e-14_rk
+        tol = 1.e-13_rk
        
        
         !
@@ -1910,7 +1910,7 @@ contains
         real(rk)        :: tol
         integer(ik)     :: inode_diff, idir, inode
         
-        tol = 1.e-14_rk
+        tol = 1.e-13_rk
        
        
         !
@@ -2190,7 +2190,7 @@ contains
         real(rk)        :: tol
         integer(ik)     :: inode_diff, idir, inode
         
-        tol = 1.e-14_rk
+        tol = 1.e-13_rk
        
        
         !
@@ -2473,7 +2473,7 @@ contains
         real(rk)        :: tol
         integer(ik)     :: inode_diff, idir, inode
         
-        tol = 1.e-14_rk
+        tol = 1.e-13_rk
        
        
         !
@@ -2754,7 +2754,7 @@ contains
         real(rk), dimension(self%elem%nterms_c*3,self%elem%basis_s%nnodes_elem()) :: test_dcoords_dx
         real(rk), dimension(self%elem%basis_s%nnodes_elem(),self%elem%nterms_c*3) :: dcoords_dx
         
-        real(rk)        :: tol = 1.e-14_rk
+        real(rk)        :: tol = 1.e-13_rk
         integer(ik)     :: inode_diff, idir, inode
 
         !
@@ -2880,7 +2880,7 @@ contains
         real(rk), dimension(self%elem%nterms_c*3,self%elem%basis_s%nnodes_face()) :: test_dcoords_dx
         real(rk), dimension(self%elem%basis_s%nnodes_face(),self%elem%nterms_c*3) :: dcoords_dx
         
-        real(rk)        :: tol = 1.e-14_rk
+        real(rk)        :: tol = 1.e-13_rk
         integer(ik)     :: inode_diff, idir, inode
 
         !
@@ -2994,7 +2994,7 @@ contains
         real(rk), dimension(self%faces(ZETA_MIN)%basis_s%nnodes_face(),self%elem%basis_s%nnodes_elem(),self%elem%nterms_c,3) :: test_dbr2_vol_face5_dx
         real(rk), dimension(self%faces(ZETA_MAX)%basis_s%nnodes_face(),self%elem%basis_s%nnodes_elem(),self%elem%nterms_c,3) :: test_dbr2_vol_face6_dx
         
-        real(rk)        :: tol = 1.e-14_rk
+        real(rk)        :: tol = 1.e-13_rk
         integer(ik)     :: inode_diff, idir, inode
         
        
@@ -4554,7 +4554,7 @@ contains
         real(rk), dimension(self%faces(ZETA_MIN)%basis_s%nnodes_face(),self%faces(ZETA_MIN)%basis_s%nnodes_face(),self%elem%nterms_c,3) :: test_dbr2_face_face5_dx
         real(rk), dimension(self%faces(ZETA_MAX)%basis_s%nnodes_face(),self%faces(ZETA_MAX)%basis_s%nnodes_face(),self%elem%nterms_c,3) :: test_dbr2_face_face6_dx
         
-        real(rk)        :: tol = 1.e-14_rk
+        real(rk)        :: tol = 1.e-13_rk
         integer(ik)     :: inode_diff, idir, inode
         
 
@@ -5543,7 +5543,7 @@ contains
     subroutine testElement_face_dmetrics_dx_etamax(self)
         class(test_element_linearB_dx),    intent(inout)   :: self
         real(rk)    :: test_dmetric_dx_etamax(3,3,self%faces(ETA_MAX)%basis_s%nnodes_face(),self%elem%nterms_c,3)
-        real(rk)    :: tol = 1.e-14_rk
+        real(rk)    :: tol = 1.e-13_rk
         
         integer(ik)     :: inode_diff, idir, inode, irow
         
@@ -6153,7 +6153,7 @@ contains
     subroutine testElement_face_dmetrics_dx_zetamax(self)
         class(test_element_linearB_dx),    intent(inout)   :: self
         real(rk)    :: test_dmetric_dx_zetamax(3,3,self%faces(ZETA_MAX)%basis_s%nnodes_face(),self%elem%nterms_c,3)
-        real(rk)    :: tol = 1.e-14_rk
+        real(rk)    :: tol = 1.e-13_rk
         
         integer(ik)     :: inode_diff, idir, inode, irow
         
@@ -6767,7 +6767,7 @@ contains
         
         real(rk), dimension(self%elem%nterms_s,self%elem%basis_s%nnodes_face(),self%elem%nterms_c,3) :: test_dgrad1_dx, test_dgrad2_dx, test_dgrad3_dx
         
-        real(rk)        :: tol = 1.e-14_rk
+        real(rk)        :: tol = 1.e-13_rk
         integer(ik)     :: inode_diff, idir, inode, irow
        
        
@@ -7342,7 +7342,7 @@ contains
 
         real(rk), dimension(3,self%faces(XI_MAX)%basis_s%nnodes_face(),self%elem%nterms_c,3) :: test_dnorm_dx
         integer(ik) :: inode_diff, idir, irow
-        real(rk)    :: tol = 1.e-14_rk
+        real(rk)    :: tol = 1.e-13_rk
         real(rk)    :: mat(4,3)
         
         
@@ -8451,7 +8451,7 @@ contains
 !        real(rk)    :: tol, point_coords(3)
 !        real(rk), allocatable   :: point_dmetric_dx(:,:,:,:)
 !        
-!        tol = 1.e-14_rk
+!        tol = 1.e-13_rk
 !       
 !        ! Local coordinates of the point
 !        point_coords = [-1._rk/sqrt(3._rk),1._rk/sqrt(3._rk),-1._rk/sqrt(3._rk)]
@@ -8488,7 +8488,7 @@ contains
 !        real(rk)    :: tol, point_coords(3)
 !        real(rk), allocatable   :: point_djinv_dx(:,:)
 !        
-!        tol = 1.e-14_rk
+!        tol = 1.e-13_rk
 !       
 !        ! Local coordinates of the point
 !        point_coords = [1._rk/sqrt(3._rk),1._rk/sqrt(3._rk),-1._rk/sqrt(3._rk)]
