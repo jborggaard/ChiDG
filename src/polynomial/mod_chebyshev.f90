@@ -283,11 +283,12 @@ contains
     !!  @date   6/14/2022
     !!
     !-----------------------------------------------------------------------------------------
-    recursive function dcheyshev_val1D_quad(nterm,pos) result(dpolyval)
+    recursive function dchebyshev_val1D_quad(nterm,pos) result(dpolyval)
         integer(ik), intent(in)    :: nterm
         real(rquad),    intent(in)    :: pos
 
         real(rquad)                   :: dpolyval
+        real(rk)                      :: pos_lp
 
         select case (nterm)
             ! Trivial evaluations
@@ -297,9 +298,10 @@ contains
                 dpolyval = 1._rquad
             case (3 :)
                 ! Recursive definition
-                dpolyval = 2._rquad*chebyshev_val1D(nterm-1,pos) + &
-                           2._rquad*pos*dchebyshev_val1D(nterm-1,pos) - &
-                           dchebyshev_val1D(nterm-2,pos)
+                pos_lp = pos
+                dpolyval = 2._rquad*chebyshev_val1D(nterm-1,pos_lp) + &
+                           2._rquad*pos*dchebyshev_val1D(nterm-1,pos_lp) - &
+                           dchebyshev_val1D(nterm-2,pos_lp)
 
         end select
 
@@ -518,7 +520,7 @@ contains
     !!  @date   6/14/2022
     !!
     !-----------------------------------------------------------------------------------------
-    function ddchebychev_val2d(currentmode,xi,eta,partial1,partial2) result(res)
+    function ddchebyshev_val2d(currentmode,xi,eta,partial1,partial2) result(res)
         integer(ik),    intent(in)  :: currentmode
         real(rk),       intent(in)  :: xi
         real(rk),       intent(in)  :: eta
