@@ -1,6 +1,6 @@
 module test_init_comm_D2E2_mod
-    use mod_kinds,                  only: ik
-    use mod_constants,              only: XI_MIN, XI_MAX, BOUNDARY, IO_DESTINATION
+    use mod_kinds,                  only: ik, rk
+    use mod_constants,              only: XI_MIN, XI_MAX, BOUNDARY, IO_DESTINATION, NO_ID
     use mod_test_utilities,         only: create_mesh_file
     use mod_file_utilities,         only: delete_file
     use type_chidg,                 only: chidg_t
@@ -11,6 +11,7 @@ module test_init_comm_D2E2_mod
 
 
 
+    type(chidg_t)   :: chidg
 
 
 contains
@@ -45,11 +46,13 @@ contains
     subroutine test_init_comm_D2E2(this)
         class(MpiTestMethod), intent(inout) :: this
 
-        type(chidg_t)               :: chidg
         type(mpi_comm)              :: ChiDG_COMM
 
         integer(ik)                 :: iread, ierr
         character(:), allocatable   :: gridfile
+        integer(ik) :: n,i, idom_l, idom_g
+        real(rk)    :: xmax
+        logical :: have_low, have_high
 
         
         IRANK              = this%getProcessRank()
@@ -84,9 +87,29 @@ contains
         call chidg%read_mesh(gridfile)
         call MPI_Barrier(ChiDG_COMM,ierr)
 
-
-
-
+        have_low  = .false.
+        have_high = .false.
+       
+        do idom_g=1,2
+          xmax = 0.d0
+          idom_l = chidg%data%mesh%get_domain_l_from_domain_g(idom_g)
+          if (idom_l == NO_ID) then
+!            write(*,'(a,2i3)') ' D2E2 here a domain not here ',IRANK, idom_g
+          else
+             n = size(chidg%data%mesh%domain(idom_l)%nodes(:,1))
+             xmax = chidg%data%mesh%domain(idom_l)%nodes(1,1)
+             do i=2,n
+             xmax = max(chidg%data%mesh%domain(idom_l)%nodes(i,1),xmax)
+             enddo
+!            write(*,*) ' D2E2 here b ',IRANK, idom_g,idom_l, n, xmax
+             if (xmax .gt. 0.75d0) then
+               have_high = .true. 
+             else if (xmax .gt. 0.25d0) then
+               have_low  = .true.
+             endif
+          endif
+        enddo
+ 
         !
         ! Check communication data. proc, neighbor indices, etc.
         !
@@ -132,9 +155,25 @@ contains
 
 
         if ( NRANK == 2 ) then
-
-
             if ( IRANK == 0 ) then
+              if (have_low) then
+                ! Domain 1, Element 1
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
+
+                @assertEqual(0, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
+
+                ! Domain 1, Element 2
+                @assertEqual(0, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_domain_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_g)
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(2,XI_MAX)%ftype )
+              else
 
                 ! Domain 2, Element 1
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
@@ -153,10 +192,10 @@ contains
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_g)
 
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(2,XI_MAX)%ftype )
-
+             endif
 
             else if ( IRANK == 1 ) then
-
+              if (have_low) then
                 ! Domain 1, Element 1
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
 
@@ -174,15 +213,40 @@ contains
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_g)
 
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(2,XI_MAX)%ftype )
+              else
+                ! Domain 2, Element 1
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
 
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
+
+                ! Domain 2, Element 2
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_domain_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(2,XI_MIN)%ineighbor_element_g)
+
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(2,XI_MAX)%ftype )
+              endif
             end if
 
         end if
 
-
-
         if ( NRANK == 4 ) then
             if ( IRANK == 0 ) then
+              if (have_low) then
+                ! Domain 1, Element 1
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
+              else
                 ! Domain 2, Element 2
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_proc)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_l)
@@ -191,19 +255,37 @@ contains
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_g)
 
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ftype )
+              endif
 
             else if ( IRANK == 1 ) then
+              if (have_low) then
+                ! Domain 1, Element 2
+                @assertEqual(0, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_g)
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ftype )
+              else
                 ! Domain 2, Element 1
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
-                
+
                 @assertEqual(0, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_l)
                 @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
                 @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
-
-
+              endif
             else if ( IRANK == 2 ) then
+              if (have_high) then
+                ! Domain 2, Element 2
+                @assertEqual(3, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_l)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_g)
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ftype )
+              else
                 ! Domain 1, Element 2
                 @assertEqual(3, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_proc)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_domain_l)
@@ -211,9 +293,18 @@ contains
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_l)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ineighbor_element_g)
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ftype )
+              endif
 
             else if ( IRANK == 3 ) then
-
+              if (have_high) then
+                ! Domain 2, Element 1
+                @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
+                @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
+                @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
+              else
                 ! Domain 1, Element 1
                 @assertEqual(BOUNDARY, chidg%data%mesh%domain(1)%faces(1,XI_MIN)%ftype )
                 @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_proc)
@@ -221,14 +312,10 @@ contains
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_domain_g)
                 @assertEqual(1, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_l)
                 @assertEqual(2, chidg%data%mesh%domain(1)%faces(1,XI_MAX)%ineighbor_element_g)
+              endif
             end if
 
-
-
         end if
-
-
-
 
         call chidg%shut_down('core')
         call chidg%shut_down('mpi')

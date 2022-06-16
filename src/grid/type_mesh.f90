@@ -72,6 +72,7 @@ module type_mesh
         procedure, private  :: new_domain
         procedure           :: ndomains
         procedure           :: ndomains_g
+        procedure           :: get_domain_l_from_domain_g
 
         ! Boundary patch group procedures
         procedure, private  :: new_bc_patch_group
@@ -351,11 +352,30 @@ contains
 
     end function ndomains_g
     !********************************************************************************
+    !>  given a global domain id, get the local domain id or NO_ID if the domain is not on
+    !!  This processor
+    !!
+    !!  @author CJ Suchyta (AFRL contractor)
+    !!  @date   11/20/2020
+    !!
+    !---------------------------------------------------------------------------------------
+    function get_domain_l_from_domain_g(self, global_domain_id) result(local_domain_index)
+      class(mesh_t),  intent(in) :: self
+      integer(ik),    intent(in) :: global_domain_id
+      integer(ik)                :: i, local_domain_index
 
+      local_domain_index = NO_ID
+      do i= 1,self%ndomains()
+      ! check if the processor has the global domain
+        if (self%domain(i)%idomain_g == global_domain_id) then
+              local_domain_index = i
+              exit
+        endif
+      enddo
 
+    end function get_domain_l_from_domain_g
 
-
-
+    !********************************************************************************
     !>  Given a domain name, return the domain identifier so that it can be 
     !!  indexed in self%domains(:).
     !!
