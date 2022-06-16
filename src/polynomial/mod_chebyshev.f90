@@ -72,8 +72,7 @@ contains
                 ! Recursive definition for norder >= 2
                 polyval_nm1=chebyshev_val1D(nterm-1,pos)
                 polyval_nm2=chebyshev_val1D(nterm-2,pos)
-                polyval = ((TWO*real(nterm-1,rk)-ONE)*pos*polyval_nm1 - &
-                          ((real(nterm-1,rk)-ONE))*polyval_nm2)/real(nterm-1,rk)
+                polyval = TWO*pos*polyval_nm1 - polyval_nm2
         end select
 
 
