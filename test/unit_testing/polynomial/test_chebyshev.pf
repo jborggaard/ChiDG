@@ -147,9 +147,9 @@ subroutine test_chebyshev_val_1D_4()
     
     spacedim      = 1
     mode          = 5
-    polyval_known = [8.0_rk*x(1)**8._rk - 8.0_rk*x(1)**2._rk + 1.0_rk, &
-                     8.0_rk*x(2)**8._rk - 8.0_rk*x(2)**2._rk + 1.0_rk, &
-                     8.0_rk*x(3)**8._rk - 8.0_rk*x(3)**2._rk + 1.0_rk ]
+    polyval_known = [8.0_rk*x(1)**4._rk - 8.0_rk*x(1)**2._rk + 1.0_rk, &
+                     8.0_rk*x(2)**4._rk - 8.0_rk*x(2)**2._rk + 1.0_rk, &
+                     8.0_rk*x(3)**4._rk - 8.0_rk*x(3)**2._rk + 1.0_rk ]
                      
     polyval_test(1) = chebyshev_val(spacedim,mode,x(1),ZERO,ZERO)
     polyval_test(2) = chebyshev_val(spacedim,mode,x(2),ZERO,ZERO)
@@ -843,11 +843,11 @@ subroutine test_dchebyshev_val_2D_33_DXI()
     end do
     
 
-    polyval_known = [(12.0_rk*x(1)**3._rk-3.0_rk)*(4.0_rk*y(1)**3._rk-3.0_rk*y(1)), &
-                     (12.0_rk*x(2)**3._rk-3.0_rk)*(4.0_rk*y(2)**3._rk-3.0_rk*y(2)), &
-                     (12.0_rk*x(3)**3._rk-3.0_rk)*(4.0_rk*y(3)**3._rk-3.0_rk*y(3)), &
-                     (12.0_rk*x(4)**3._rk-3.0_rk)*(4.0_rk*y(4)**3._rk-3.0_rk*y(4)), &
-                     (12.0_rk*x(5)**3._rk-3.0_rk)*(4.0_rk*y(5)**3._rk-3.0_rk*y(5))]
+    polyval_known = [(12.0_rk*x(1)**2._rk-3.0_rk)*(4.0_rk*y(1)**3._rk-3.0_rk*y(1)), &
+                     (12.0_rk*x(2)**2._rk-3.0_rk)*(4.0_rk*y(2)**3._rk-3.0_rk*y(2)), &
+                     (12.0_rk*x(3)**2._rk-3.0_rk)*(4.0_rk*y(3)**3._rk-3.0_rk*y(3)), &
+                     (12.0_rk*x(4)**2._rk-3.0_rk)*(4.0_rk*y(4)**3._rk-3.0_rk*y(4)), &
+                     (12.0_rk*x(5)**2._rk-3.0_rk)*(4.0_rk*y(5)**3._rk-3.0_rk*y(5))]
     polyval_test(1) = dchebyshev_val(spacedim,mode,x(1),y(1),ZERO,partial_dir)
     polyval_test(2) = dchebyshev_val(spacedim,mode,x(2),y(2),ZERO,partial_dir)
     polyval_test(3) = dchebyshev_val(spacedim,mode,x(3),y(3),ZERO,partial_dir)
@@ -1050,7 +1050,7 @@ subroutine test_ddchebyshev_val_3D_mode200()
     end do
     
 
-    polyval_known = 4._rk*x
+    polyval_known = 4._rk
     polyval_test(1) = ddchebyshev_val(spacedim,mode,x(1),y(1),ZERO,partial1,partial2)
     polyval_test(2) = ddchebyshev_val(spacedim,mode,x(2),y(2),ZERO,partial1,partial2)
     polyval_test(3) = ddchebyshev_val(spacedim,mode,x(3),y(3),ZERO,partial1,partial2)
